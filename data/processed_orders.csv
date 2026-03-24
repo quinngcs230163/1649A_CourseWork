@@ -1,0 +1,3 @@
+orderId,customerName,shippingAddress,status,bookId,title,author,price,quantity,total
+"05","Quan","Binh Thanh","Processed","B012","Operating System Concepts","Abraham Silberschatz",52.8,1,97.69999999999999
+"05","Quan","Binh Thanh","Processed","B015","Software Engineering","Ian Sommerville",44.9,1,97.69999999999999
