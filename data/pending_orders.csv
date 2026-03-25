@@ -1,3 +1,5 @@
 orderId,customerName,shippingAddress,status,bookId,title,author,price,quantity,total
 "06","Huy","Tan Binh","Pending","B008","Refactoring","Martin Fowler",42.3,2,84.6
 "08","Loc","Bao Loc","Pending","B009","The Pragmatic Programmer","Andrew Hunt",38.4,3,115.19999999999999
+"01","Tri","96/2 NSS","Pending","B012","Operating System Concepts","Abraham Silberschatz",52.8,1,97.69999999999999
+"01","Tri","96/2 NSS","Pending","B015","Software Engineering","Ian Sommerville",44.9,1,97.69999999999999

@@ -10,8 +10,8 @@ import structure.SinglyNode;
 import java.io.*;
 
 public class OrderFileManager {
-    private static final String PENDING_FILE = "pending_orders.csv";
-    private static final String PROCESSED_FILE = "processed_orders.csv";
+    private static final String PENDING_FILE = "CourseWork/data/pending_orders.csv";
+    private static final String PROCESSED_FILE = "CourseWork/data/processed_orders.csv";
     private static final String HEADER = "orderId,customerName,shippingAddress,status,bookId,title,author,price,quantity,total";
 
     public OrderFileManager() {
