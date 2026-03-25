@@ -8,12 +8,10 @@ import structure.LinkedQueue;
 import structure.SinglyNode;
 
 import java.io.*;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class OrderFileManager {
-    private static final String PENDING_FILE = "CourseWork/data/pending_orders.csv";
-    private static final String PROCESSED_FILE = "CourseWork/data/processed_orders.csv";
+    private static final String PENDING_FILE = "pending_orders.csv";
+    private static final String PROCESSED_FILE = "processed_orders.csv";
     private static final String HEADER = "orderId,customerName,shippingAddress,status,bookId,title,author,price,quantity,total";
 
     public OrderFileManager() {
@@ -112,7 +110,6 @@ public class OrderFileManager {
 
     private LinkedQueue<Order> loadOrdersFromFile(String fileName) {
         LinkedQueue<Order> queue = new LinkedQueue<>();
-        Map<String, Order> orderMap = new LinkedHashMap<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             String line;
@@ -134,11 +131,12 @@ public class OrderFileManager {
                     continue;
                 }
 
-                Order order = orderMap.get(record.orderId);
+                Order order = findOrderInQueue(queue, record.orderId);
+
                 if (order == null) {
                     order = new Order(record.orderId, record.customerName, record.shippingAddress);
                     order.setStatus(record.status);
-                    orderMap.put(record.orderId, order);
+                    queue.enqueue(order);
                 }
 
                 Book book = new Book(record.bookId, record.title, record.author, record.price);
@@ -148,11 +146,23 @@ public class OrderFileManager {
             System.out.println("Error loading orders from file: " + fileName);
         }
 
-        for (Order order : orderMap.values()) {
-            queue.enqueue(order);
+        return queue;
+    }
+
+    private Order findOrderInQueue(LinkedQueue<Order> queue, String orderId) {
+        if (queue == null || queue.isEmpty()) {
+            return null;
         }
 
-        return queue;
+        DoublyNode<Order> current = queue.getFrontNode();
+        while (current != null) {
+            if (current.data != null && current.data.getOrderId().equalsIgnoreCase(orderId)) {
+                return current.data;
+            }
+            current = current.next;
+        }
+
+        return null;
     }
 
     private OrderCsvRecord convertToRecord(String[] parts) {
