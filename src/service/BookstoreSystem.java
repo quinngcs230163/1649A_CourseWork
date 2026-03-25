@@ -51,14 +51,13 @@ public class BookstoreSystem {
         }
 
         catalog.reserveOrder(order);
-        order.sortItemsByTitle();
         order.setStatus("Pending");
         pendingOrders.enqueue(order);
         fileManager.saveAllPendingOrders(pendingOrders);
 
         actionHistory.push("Added order: " + order.getOrderId());
         System.out.println("Order added successfully.");
-        System.out.println("Availability confirmed and items sorted by title automatically.");
+        System.out.println("Availability confirmed. Order added to pending queue.");
     }
 
     private boolean isValidBasicOrder(Order order) {
@@ -203,7 +202,6 @@ public class BookstoreSystem {
         catalogBook.decreaseStock(quantity);
         OrderItem item = new OrderItem(new Book(book.getBookId(), book.getTitle(), book.getAuthor(), book.getPrice()), quantity);
         order.addOrUpdateItem(item);
-        order.sortItemsByTitle();
         fileManager.saveAllPendingOrders(pendingOrders);
         actionHistory.push("Updated order: " + orderId + " with book " + book.getBookId());
         return true;

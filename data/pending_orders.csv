@@ -3,3 +3,6 @@ orderId,customerName,shippingAddress,status,bookId,title,author,price,quantity,t
 "08","Loc","Bao Loc","Pending","B009","The Pragmatic Programmer","Andrew Hunt",38.4,3,115.19999999999999
 "01","Tri","96/2 NSS","Pending","B012","Operating System Concepts","Abraham Silberschatz",52.8,1,97.69999999999999
 "01","Tri","96/2 NSS","Pending","B015","Software Engineering","Ian Sommerville",44.9,1,97.69999999999999
+"02","Trang","HaNoi","Pending","B014","Artificial Intelligence: A Modern Approach","Stuart Russell",60.0,1,115.5
+"02","Trang","HaNoi","Pending","B001","Clean Code","Robert C. Martin",25.5,1,115.5
+"02","Trang","HaNoi","Pending","B002","Java Basics","James Gosling",30.0,1,115.5
