@@ -6,3 +6,6 @@ orderId,customerName,shippingAddress,status,bookId,title,author,price,quantity,t
 "02","Trang","HaNoi","Pending","B014","Artificial Intelligence: A Modern Approach","Stuart Russell",60.0,1,115.5
 "02","Trang","HaNoi","Pending","B001","Clean Code","Robert C. Martin",25.5,1,115.5
 "02","Trang","HaNoi","Pending","B002","Java Basics","James Gosling",30.0,1,115.5
+"03","Thach","92 NSS","Pending","B004","Algorithms Unlocked","Thomas H. Cormen",35.2,1,142.8
+"03","Thach","92 NSS","Pending","B014","Artificial Intelligence: A Modern Approach","Stuart Russell",60.0,1,142.8
+"03","Thach","92 NSS","Pending","B013","Database System Concepts","Henry F. Korth",47.6,1,142.8
