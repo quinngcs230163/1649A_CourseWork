@@ -4,9 +4,10 @@ orderId,customerName,shippingAddress,status,bookId,title,author,price,quantity,t
 "03","Trang","HaNoi","Pending","B014","Artificial Intelligence: A Modern Approach","Stuart Russell",60.0,1,115.5
 "03","Trang","HaNoi","Pending","B001","Clean Code","Robert C. Martin",25.5,1,115.5
 "03","Trang","HaNoi","Pending","B002","Java Basics","James Gosling",30.0,1,115.5
-"04","Thach","92 NSS","Pending","B004","Algorithms Unlocked","Thomas H. Cormen",35.2,1,142.8
-"04","Thach","92 NSS","Pending","B014","Artificial Intelligence: A Modern Approach","Stuart Russell",60.0,1,142.8
-"04","Thach","92 NSS","Pending","B013","Database System Concepts","Henry F. Korth",47.6,1,142.8
+"04","Thach","92 NSS","Pending","B004","Algorithms Unlocked","Thomas H. Cormen",35.2,1,152.8
+"04","Thach","92 NSS","Pending","B014","Artificial Intelligence: A Modern Approach","Stuart Russell",60.0,1,152.8
+"04","Thach","92 NSS","Pending","B013","Database System Concepts","Henry F. Korth",47.6,1,152.8
+"04","Thach","92 NSS","Pending","B016","Dreamy Eyes","Nguyen Nhat Anh",10.0,1,152.8
 "05","Huy","Tan Binh","Pending","B008","Refactoring","Martin Fowler",42.3,2,84.6
 "06","Loc","Bao Loc","Pending","B009","The Pragmatic Programmer","Andrew Hunt",38.4,3,115.19999999999999
 "07","Bao","|||","Pending","B007","Design Patterns","Erich Gamma",45.5,3,136.5
