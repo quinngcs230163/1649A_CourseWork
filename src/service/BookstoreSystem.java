@@ -6,6 +6,7 @@ import model.OrderItem;
 import structure.DoublyNode;
 import structure.LinkedQueue;
 import structure.LinkedStack;
+import structure.SinglyNode;
 
 public class BookstoreSystem {
     private LinkedQueue<Order> pendingOrders;
@@ -20,10 +21,6 @@ public class BookstoreSystem {
         this.pendingOrders = fileManager.loadPendingOrders();
         this.processedOrders = fileManager.loadProcessedOrders();
         this.actionHistory = new LinkedStack<>();
-
-        if (this.catalog != null) {
-            this.catalog.reservePendingOrders(pendingOrders);
-        }
     }
 
     public boolean isDuplicateOrderId(String orderId) {
@@ -44,20 +41,20 @@ public class BookstoreSystem {
             return;
         }
 
-        if (!catalog.canFulfillOrder(order)) {
-            System.out.println("Order cannot be added because availability check failed.");
-            System.out.println(catalog.getFirstUnavailableBookMessage(order));
+        String availabilityMessage = validateOrderAgainstCatalogAndPending(order);
+        if (availabilityMessage != null) {
+            System.out.println("Order cannot be added.");
+            System.out.println(availabilityMessage);
             return;
         }
 
-        catalog.reserveOrder(order);
         order.setStatus("Pending");
         pendingOrders.enqueue(order);
         fileManager.saveAllPendingOrders(pendingOrders);
 
         actionHistory.push("Added order: " + order.getOrderId());
         System.out.println("Order added successfully.");
-        System.out.println("Availability confirmed. Order added to pending queue.");
+        System.out.println("Order added to pending queue.");
     }
 
     private boolean isValidBasicOrder(Order order) {
@@ -85,14 +82,22 @@ public class BookstoreSystem {
     }
 
     public void processNextOrder() {
-        Order order = pendingOrders.dequeue();
+        Order order = pendingOrders.peek();
         if (order == null) {
             System.out.println("No order to process.");
             return;
         }
 
+        if (!catalog.deductStockForOrder(order)) {
+            System.out.println("Cannot process order because stock is no longer sufficient.");
+            System.out.println(catalog.getFirstUnavailableBookMessage(order));
+            return;
+        }
+
+        order = pendingOrders.dequeue();
         order.setStatus("Processed");
         processedOrders.enqueue(order);
+
         fileManager.saveAllPendingOrders(pendingOrders);
         fileManager.saveProcessedOrder(order);
 
@@ -117,12 +122,12 @@ public class BookstoreSystem {
     }
 
     public void displayPendingOrders() {
-        System.out.println("=== PENDING ORDERS ===");
+        System.out.println("=== Pending Orders ===");
         pendingOrders.display();
     }
 
     public void displayProcessedOrders() {
-        System.out.println("=== PROCESSED ORDERS ===");
+        System.out.println("=== Processed Orders ===");
         processedOrders.display();
     }
 
@@ -195,12 +200,21 @@ public class BookstoreSystem {
         }
 
         Book catalogBook = catalog.searchBookById(book.getBookId());
-        if (catalogBook == null || !catalogBook.hasEnoughStock(quantity)) {
+        if (catalogBook == null) {
             return false;
         }
 
-        catalogBook.decreaseStock(quantity);
-        OrderItem item = new OrderItem(new Book(book.getBookId(), book.getTitle(), book.getAuthor(), book.getPrice()), quantity);
+        int availableForThisOrder = getAvailableStockForOrder(book.getBookId(), orderId);
+        int currentQuantityInOrder = getQuantityOfBookInOrder(order, book.getBookId());
+
+        if (currentQuantityInOrder + quantity > availableForThisOrder) {
+            return false;
+        }
+
+        OrderItem item = new OrderItem(
+                new Book(book.getBookId(), book.getTitle(), book.getAuthor(), book.getPrice()),
+                quantity
+        );
         order.addOrUpdateItem(item);
         fileManager.saveAllPendingOrders(pendingOrders);
         actionHistory.push("Updated order: " + orderId + " with book " + book.getBookId());
@@ -228,5 +242,98 @@ public class BookstoreSystem {
             current = current.next;
         }
         return null;
+    }
+
+    private String validateOrderAgainstCatalogAndPending(Order order) {
+        SinglyNode<OrderItem> current = order.getItemsHead();
+
+        while (current != null) {
+            OrderItem item = current.data;
+            Book catalogBook = catalog.searchBookById(item.getBook().getBookId());
+
+            if (catalogBook == null) {
+                return "Book ID " + item.getBook().getBookId() + " does not exist in the catalog.";
+            }
+
+            int available = getAvailableStockForNewOrder(item.getBook().getBookId());
+            if (item.getQuantity() > available) {
+                return "Not enough available stock for book " + catalogBook.getTitle()
+                        + ". Available for new pending orders: " + available
+                        + ", Requested: " + item.getQuantity();
+            }
+
+            current = current.next;
+        }
+
+        return null;
+    }
+
+    private int getAvailableStockForNewOrder(String bookId) {
+        Book catalogBook = catalog.searchBookById(bookId);
+        if (catalogBook == null) {
+            return 0;
+        }
+
+        int stock = catalogBook.getStockQuantity();
+        int reservedByPending = getReservedQuantityInPendingOrders(bookId, null, false);
+        int available = stock - reservedByPending;
+
+        return Math.max(available, 0);
+    }
+
+    private int getAvailableStockForOrder(String bookId, String currentOrderId) {
+        Book catalogBook = catalog.searchBookById(bookId);
+        if (catalogBook == null) {
+            return 0;
+        }
+
+        int stock = catalogBook.getStockQuantity();
+        int reservedByEarlierPending = getReservedQuantityInPendingOrders(bookId, currentOrderId, true);
+        int available = stock - reservedByEarlierPending;
+
+        return Math.max(available, 0);
+    }
+
+    private int getReservedQuantityInPendingOrders(String bookId, String stopOrderId, boolean stopBeforeMatchedOrder) {
+        int reserved = 0;
+
+        DoublyNode<Order> currentOrderNode = pendingOrders.getFrontNode();
+        while (currentOrderNode != null) {
+            Order currentOrder = currentOrderNode.data;
+
+            if (stopOrderId != null && currentOrder.getOrderId().equalsIgnoreCase(stopOrderId.trim())) {
+                if (stopBeforeMatchedOrder) {
+                    break;
+                }
+            }
+
+            reserved += getQuantityOfBookInOrder(currentOrder, bookId);
+
+            if (stopOrderId != null && currentOrder.getOrderId().equalsIgnoreCase(stopOrderId.trim())) {
+                break;
+            }
+
+            currentOrderNode = currentOrderNode.next;
+        }
+
+        return reserved;
+    }
+
+    private int getQuantityOfBookInOrder(Order order, String bookId) {
+        if (order == null || bookId == null || bookId.trim().isEmpty()) {
+            return 0;
+        }
+
+        int quantity = 0;
+        SinglyNode<OrderItem> currentItem = order.getItemsHead();
+
+        while (currentItem != null) {
+            if (currentItem.data.getBook().getBookId().equalsIgnoreCase(bookId.trim())) {
+                quantity += currentItem.data.getQuantity();
+            }
+            currentItem = currentItem.next;
+        }
+
+        return quantity;
     }
 }

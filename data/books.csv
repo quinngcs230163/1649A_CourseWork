@@ -1,0 +1,17 @@
+bookId,title,author,price,stockQuantity
+"B001","Clean Code","Robert C. Martin",25.5,9
+"B002","Java Basics","James Gosling",30.0,7
+"B003","Data Structures","Mark Allen Weiss",28.75,7
+"B004","Algorithms Unlocked","Thomas H. Cormen",35.2,5
+"B005","Head First Java","Kathy Sierra",27.9,9
+"B006","Effective Java","Joshua Bloch",40.0,5
+"B007","Design Patterns","Erich Gamma",45.5,4
+"B008","Refactoring","Martin Fowler",42.3,4
+"B009","The Pragmatic Programmer","Andrew Hunt",38.4,4
+"B010","Introduction to Algorithms","Thomas H. Cormen",55.0,5
+"B011","Computer Networks","Andrew S. Tanenbaum",48.25,6
+"B012","Operating System Concepts","Abraham Silberschatz",52.8,4
+"B013","Database System Concepts","Henry F. Korth",47.6,5
+"B014","Artificial Intelligence: A Modern Approach","Stuart Russell",60.0,5
+"B015","Software Engineering","Ian Sommerville",44.9,7
+"B016","Dreamy Eyes","Nguyen Nhat Anh",10.0,5

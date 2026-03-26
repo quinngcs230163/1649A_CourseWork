@@ -11,7 +11,7 @@ public class Main {
         Scanner sc = new Scanner(System.in);
 
         BookCatalog catalog = new BookCatalog();
-        catalog.loadSampleBooks();
+        catalog.loadBooks();
 
         BookstoreSystem system = new BookstoreSystem(catalog);
 
@@ -78,6 +78,18 @@ public class Main {
                     break;
 
                 case "11":
+                    addBookToCatalog(sc, system.getCatalog());
+                    break;
+
+                case "12":
+                    editBookInCatalog(sc, system.getCatalog());
+                    break;
+
+                case "13":
+                    deleteBookFromCatalog(sc, system.getCatalog());
+                    break;
+
+                case "0":
                     System.out.println("Exiting program...");
                     sc.close();
                     return;
@@ -102,7 +114,10 @@ public class Main {
         System.out.println("8. Edit existing pending order");
         System.out.println("9. Show action history");
         System.out.println("10. Display processed orders");
-        System.out.println("11. Exit");
+        System.out.println("11. Add book to catalog");
+        System.out.println("12. Edit book in catalog");
+        System.out.println("13. Delete book from catalog");
+        System.out.println("0. Exit");
     }
 
     public static Order createOrderFromCatalog(Scanner sc, BookCatalog catalog, BookstoreSystem system) {
@@ -218,6 +233,119 @@ public class Main {
         }
     }
 
+    public static void addBookToCatalog(Scanner sc, BookCatalog catalog) {
+        System.out.println("=== ADD BOOK TO CATALOG ===");
+
+        String bookId;
+        while (true) {
+            bookId = readNonEmptyString(sc, "Enter Book ID: ");
+            if (catalog.containsBookId(bookId)) {
+                System.out.println("Book ID already exists. Please enter another ID.");
+                continue;
+            }
+            break;
+        }
+
+        String title;
+        while (true) {
+            title = readNonEmptyString(sc, "Enter title: ");
+            if (catalog.containsBookTitle(title)) {
+                System.out.println("Book title already exists in catalog. Please enter another title.");
+                continue;
+            }
+            break;
+        }
+
+        String author = readNonEmptyString(sc, "Enter author: ");
+        double price = readPositiveDouble(sc, "Enter price: ");
+        int stock = readNonNegativeInt(sc, "Enter stock quantity: ");
+
+        Book newBook = new Book(bookId.trim(), title.trim(), author.trim(), price, stock);
+        boolean added = catalog.addBook(newBook);
+
+        if (added) {
+            System.out.println("Book added successfully.");
+            System.out.println("New book:");
+            System.out.println(newBook);
+        } else {
+            System.out.println("Book could not be added. Please check the data again.");
+        }
+    }
+
+    public static void editBookInCatalog(Scanner sc, BookCatalog catalog) {
+        System.out.println("=== EDIT BOOK IN CATALOG ===");
+        String bookId = readNonEmptyString(sc, "Enter Book ID to edit: ");
+
+        Book book = catalog.searchBookById(bookId);
+        if (book == null) {
+            System.out.println("Book ID not found.");
+            return;
+        }
+
+        System.out.println("Current book information:");
+        System.out.println(book);
+
+        String newTitle;
+        while (true) {
+            System.out.print("Enter new title (leave blank to keep current): ");
+            newTitle = sc.nextLine().trim();
+            if (newTitle.isEmpty()) {
+                newTitle = book.getTitle();
+                break;
+            }
+            if (catalog.containsOtherBookTitle(newTitle, book.getBookId())) {
+                System.out.println("Another book with this title already exists. Please enter another title.");
+                continue;
+            }
+            break;
+        }
+
+        System.out.print("Enter new author (leave blank to keep current): ");
+        String newAuthor = sc.nextLine().trim();
+        if (newAuthor.isEmpty()) {
+            newAuthor = book.getAuthor();
+        }
+
+        double newPrice = readOptionalPositiveDouble(sc, "Enter new price (leave blank to keep current): ", book.getPrice());
+        int newStock = readOptionalNonNegativeInt(sc, "Enter new stock quantity (leave blank to keep current): ", book.getStockQuantity());
+
+        boolean updated = catalog.updateBook(book.getBookId(), newTitle, newAuthor, newPrice, newStock);
+        if (updated) {
+            System.out.println("Book updated successfully.");
+            System.out.println(catalog.searchBookById(book.getBookId()));
+        } else {
+            System.out.println("Book could not be updated. Please check the data again.");
+        }
+    }
+
+    public static void deleteBookFromCatalog(Scanner sc, BookCatalog catalog) {
+        System.out.println("=== DELETE BOOK FROM CATALOG ===");
+        String bookId = readNonEmptyString(sc, "Enter Book ID to delete: ");
+
+        Book book = catalog.searchBookById(bookId);
+        if (book == null) {
+            System.out.println("Book ID not found.");
+            return;
+        }
+
+        System.out.println("Book to delete:");
+        System.out.println(book);
+        System.out.print("Are you sure you want to delete this book? (yes/no): ");
+        String answer = sc.nextLine().trim();
+
+        if (!answer.equalsIgnoreCase("yes")) {
+            System.out.println("Delete cancelled.");
+            return;
+        }
+
+        boolean deleted = catalog.deleteBook(bookId);
+        if (deleted) {
+            System.out.println("Book deleted successfully.");
+        } else {
+            System.out.println("Book could not be deleted.");
+        }
+    }
+
     public static String readNonEmptyString(Scanner sc, String message) {
         while (true) {
             System.out.print(message);
@@ -242,6 +370,82 @@ public class Main {
                     return value;
                 }
                 System.out.println("Please enter an integer greater than 0.");
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Please enter a valid integer.");
+            }
+        }
+    }
+
+    public static int readNonNegativeInt(Scanner sc, String message) {
+        while (true) {
+            System.out.print(message);
+            String input = sc.nextLine().trim();
+
+            try {
+                int value = Integer.parseInt(input);
+                if (value >= 0) {
+                    return value;
+                }
+                System.out.println("Please enter an integer greater than or equal to 0.");
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Please enter a valid integer.");
+            }
+        }
+    }
+
+    public static double readPositiveDouble(Scanner sc, String message) {
+        while (true) {
+            System.out.print(message);
+            String input = sc.nextLine().trim();
+
+            try {
+                double value = Double.parseDouble(input);
+                if (value > 0) {
+                    return value;
+                }
+                System.out.println("Please enter a number greater than 0.");
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Please enter a valid price.");
+            }
+        }
+    }
+
+    public static double readOptionalPositiveDouble(Scanner sc, String message, double currentValue) {
+        while (true) {
+            System.out.print(message);
+            String input = sc.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return currentValue;
+            }
+
+            try {
+                double value = Double.parseDouble(input);
+                if (value > 0) {
+                    return value;
+                }
+                System.out.println("Please enter a number greater than 0.");
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Please enter a valid price.");
+            }
+        }
+    }
+
+    public static int readOptionalNonNegativeInt(Scanner sc, String message, int currentValue) {
+        while (true) {
+            System.out.print(message);
+            String input = sc.nextLine().trim();
+
+            if (input.isEmpty()) {
+                return currentValue;
+            }
+
+            try {
+                int value = Integer.parseInt(input);
+                if (value >= 0) {
+                    return value;
+                }
+                System.out.println("Please enter an integer greater than or equal to 0.");
             } catch (NumberFormatException e) {
                 System.out.println("Invalid number. Please enter a valid integer.");
             }
