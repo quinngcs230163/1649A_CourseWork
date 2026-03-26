@@ -13,7 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class BookCatalog {
-    private static final String BOOK_FILE = "data/books.csv";
+    private static final String BOOK_FILE = "CourseWork/data/books.csv";
     private static final String HEADER = "bookId,title,author,price,stockQuantity";
 
     private SinglyNode<Book> head;
